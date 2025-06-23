@@ -1,7 +1,7 @@
 library(shiny)
 library(DT)
 
-Thisversion <- "version 0.73"
+Thisversion <- "version 0.73a"
 ThisApp <- "Analysis of Zymogen Activation"
 fluidPage(
 
@@ -9,7 +9,7 @@ fluidPage(
   titlePanel(h2(ThisApp, align = "center")),
   sidebarLayout(
     sidebarPanel(
-
+      style = "background: #ffffe6",
       # tags$h5("Select Data: csv, txt or xlsx"),
       fluidRow(
         column(8, fileInput("data1", label = "Select Data as csv, txt or xlsx file")),
