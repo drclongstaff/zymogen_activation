@@ -1,6 +1,6 @@
 library(shiny)
 library(readxl)
-
+library(DT)
 
 # This function is for loading user data
 load_file <- function(NAME, PATH, SHEET) {
