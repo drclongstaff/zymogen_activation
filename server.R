@@ -169,10 +169,42 @@ function(input, output) { #Import user or supplied data
       matrix(TabRes()[[5]], byrow = TRUE, nrow = input$numrows)
     }
     else {
-      matrix(TabrRes()[[3]], byrow = TRUE, nrow = input$numrows)
+      matrix(TabRes()[[3]], byrow = TRUE, nrow = input$numrows)
     }
   })
 
+  output$myplotAll <- renderPlot({
+    if (is.null(input$colmnames)) {
+      return(NULL)
+    } # To stop this section running and producing an error before the data has uploaded
+    #TsqSlope <- round(as.numeric(Tsqresults()[2,]), 2)
+    #TSlope <- round(as.numeric(Tresults()[2,]), 2)
+    #TsqInt <- as.numeric(Tsqresults()[1,])
+    #TInt <- as.numeric(Tresults()[1,])
+    nWells <- length(readData()[,-1])
+    par(mfrow = c(input$numrows, nWells/input$numrows))
+    par(mar = c(0.2, 0.2, 0.2, 0.2))
+    
+    Time <- readData()[[1]]
+    Timesq <- Time^2
+    for (i in seq_along(readData()[,-1])) {
+      Yd <- readData()[[i+1]]
+      if (input$sqr) {
+        plot(Timesq, Yd,col = "red", pch = 20, xaxt = "n", yaxt = "n", xlim = c(0, max(Timesq)), ylim = c(0, input$num))
+        #abline(TsqInt[i], TsqSlope[i]*1e-9, col="black", lwd=1)
+        abline(TabRes()[i,4], TabRes()[i,5]*1e-9, col="black", lwd=1)
+        #legend(0.05, max(readData()[,-1]*0.5), bty = "n", "A")#paste(colnames(readData())[i+1], TsqSlope[i])) #signif(Tsqresults()[2,i], 4))
+        legend(x=0, y=input$num, bty = "n", colnames(readData())[i+1], cex = 1.5, xjust = 0.5)
+      }
+      else{
+        plot(Time, Yd,col = "red", pch = 20, xaxt = "n", yaxt = "n", xlim = c(0, max(Time)), ylim = c(0, input$num))
+        abline(TabRes()[i,2], TabRes()[i,3]*1e-6, col="black", lwd=1)
+        legend(x=0, y=input$num, bty = "n", colnames(readData())[i+1], cex = 1.5, xjust = 0.5) 
+      }
+      
+    }
+    
+  })
 
   output$resultsTable_old <- renderTable({
     if (is.null(input$colmnames)) {
@@ -261,7 +293,7 @@ function(input, output) { #Import user or supplied data
     }
   })
 
-  output$myplotAll <- renderPlot({
+  output$myplotAll_old <- renderPlot({
     if (is.null(input$colmnames)) {
       return(NULL)
     } # To stop this section running and producing an error before the data has uploaded
