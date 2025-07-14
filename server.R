@@ -147,6 +147,20 @@ function(input, output) { #Import user or supplied data
     readData()
   })
 
+  TabRes <- reactive({
+    
+    #myRestsq <- data.frame(sapply(readData()[,-1], function(x) LMtsq(x, input$num, readData())))
+    #myRestsq <- readData()[,-1] |> map_df(~LMtsq(.x, input$num, readData())) |> as.data.frame()
+    TabRes <- readData()[,-1] |> map_df(~data.frame(TInt=LMt(.x, input$num, readData())[1],
+                                                    TSlope=LMt(.x, input$num, readData())[2],
+                                                    TsqInt=LMtsq(.x, input$num, readData())[1],
+                                                    TsqSlope=LMtsq(.x, input$num, readData())[2])) |> 
+      add_column(Well=colnames(readData()[,-1]), .before = 1)
+    
+    
+    TabRes #<- data.frame(TabRes)
+    write_clip(TabRes)   
+  })
 
 
 
