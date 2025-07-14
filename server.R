@@ -157,10 +157,11 @@ function(input, output) { #Import user or supplied data
                                                     TsqInt=LMtsq(.x, input$num, readData())[1],
                                                     TsqSlope=LMtsq(.x, input$num, readData())[2])) |> 
       add_column(Well=colnames(readData()[,-1]), .before = 1)
+    #TabRes <- TabRes |> add_column(Well=colnames(readData()[,-1]), .before = 1) #|> as.data.frame()
     
 
-    TabRes #<- data.frame(TabRes)
-    #write_clip(TabRes)   
+    TabRes <- as.data.frame(TabRes) #<- data.frame(TabRes)
+    clipr::write_clip(TabRes)   
   })
 
   #Make the results table into a matrix for presentation as a table   
