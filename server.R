@@ -150,36 +150,44 @@ function(input, output) { #Import user or supplied data
   })
 #Generate results table using slope and intercept functions for time and timesq
   TabRes <- reactive({
-    #myRestsq <- data.frame(sapply(readData()[,-1], function(x) LMtsq(x, input$num, readData())))
-    #myRestsq <- readData()[,-1] |> map_df(~LMtsq(.x, input$num, readData())) |> as.data.frame()
-    TabRes <- readData()[,-1] |> map_df(~data.frame(TInt=LMt(.x, input$num, readData())[1],
+    AbsCols <- readData()[,-1]
+    TabRes <- AbsCols |> map_df(~data.frame(TInt=LMt(.x, input$num, readData())[1],
                                                     TSlope=LMt(.x, input$num, readData())[2],
                                                     TsqInt=LMtsq(.x, input$num, readData())[1],
                                                     TsqSlope=LMtsq(.x, input$num, readData())[2])) |> 
-      add_column(Well=colnames(readData()[,-1]), .before = 1)
-    #TabRes <- TabRes |> add_column(Well=colnames(readData()[,-1]), .before = 1) #|> as.data.frame()
-    
-
+     add_column(Well=colnames(AbsCols), .before = 1)
     TabRes <- as.data.frame(TabRes) #<- data.frame(TabRes)
     clipr::write_clip(TabRes)   
   })
 
   #Make the results table into a matrix for presentation as a table   
   output$resultsTable <- renderTable({
+    if (is.null(TabRes())) { return(NULL)}
     
-    if (input$sqr){
-      matrix(TabRes()[[5]], byrow = TRUE, nrow = input$numrows)
+    ratepMs <- 0.5 * input$Ext * (input$kcat * input$Sub) / (input$Km + input$Sub)
+    
+    if (input$names) {
+      data <- colnames(readData()[,-1])
+    } else if (input$sqr) {
+      if (input$pM) {
+        data <- (1e-9 * TabRes()[[5]] / ratepMs) * 1e12
+      }
+      else {
+        data <- TabRes()[[5]]
+      }
+    } else {
+      data <- TabRes()[[3]]
     }
-    else {
-      matrix(TabRes()[[3]], byrow = TRUE, nrow = input$numrows)
-    }
+    #write_clip(data)
+    # write.table(data, "clipboard", sep="\t", col.names=F, row.names=F) #enable this line if run locally
+    matrix(data, byrow = TRUE, nrow = input$numrows)
   })
 
   output$tabres <- renderTable({ TabRes()})
   
   output$myplotAll <- renderPlot({
     if (is.null(input$colmnames)) {
-      return(NULL)
+     return(NULL)
     } # To stop this section running and producing an error before the data has uploaded
     #TsqSlope <- round(as.numeric(Tsqresults()[2,]), 2)
     #TSlope <- round(as.numeric(Tresults()[2,]), 2)
