@@ -183,7 +183,12 @@ function(input, output) { #Import user or supplied data
     matrix(data, byrow = TRUE, nrow = input$numrows)
   })
 
-  output$tabres <- renderTable({ TabRes()})
+  output$tabres <- renderTable({
+    TabRes_round <- TabRes() |> mutate(across(2:5, \(x) signif(x, digits = 6)))
+    colnames(TabRes_round) <-  c("Wells", "T_Intercept", "T_Slope x1e6", "Tsq_Intercept", "Tsq_Slope x1e9")
+    TabRes_round
+  })
+  
   
   output$myplotAll <- renderPlot({
     if (is.null(input$colmnames)) {
