@@ -102,7 +102,7 @@ function(input, output) { #Import user or supplied data
   })
 
 
-  output$myplot <- renderPlot({
+  output$myplot_old <- renderPlot({
     if (is.null(input$colmnames)) {
       return(NULL)
     } # To stop this section running and producing an error before the data has uploaded
@@ -206,6 +206,41 @@ function(input, output) { #Import user or supplied data
     
   })
 
+  output$myplot <- renderPlot({
+    
+    
+    #Datwells<-plate0[,-1]
+    #Datwells<-plate0 %>% select(-1)
+    
+    #yi<-Datwells[,input$colmnames] # Rather than get and attach, this just reads in the column chosen earlier
+    
+    k<-which(TabRes()[, 1]==input$colmnames)
+    
+    
+    Yd <- readData()[[input$colmnames]]
+    
+    #Yd <- Y[Y<input$num]
+    Time <- readData()[[1]][1:length(Yd)]
+    Timesq <- Time^2
+    
+    if (input$sqr) { 
+      plot(Timesq, Yd,col = "red", pch = 1,  xlim = c(0, max(Timesq)), ylim = c(0, input$num),
+           main = paste("Slope for time sq plot of", input$colmnames,"=", signif(TabRes()[2,input$colmnames], 4), "x 1e9 abs/s^2",
+                        "over abs of ", input$num, "and", input$maxt, "points"))
+      #abline(Tsqresults()[1,input$colmnames], Tsqresults()[2,input$colmnames]*1e-9, col="black", lwd=1)
+      abline(TabRes()[k,4], TabRes()[k,5]*1e-9, col="black", lwd=1)
+      #legend(0, input$num, bty = "n", paste(input$colmnames, " = ", signif(Tsqresults()[2,input$colmnames], 4)))
+      
+    }
+    else{
+      plot(Time, Yd,col = "red", pch = 20,  xlim = c(0, max(Time)), ylim = c(0, input$num),
+           main = paste("Slope for time plot of", input$colmnames, "=", signif(TabRes()[2,input$colmnames], 4), "x 1e6 abs/s",
+                        "for absorbance of ", input$num, "and", input$maxt, "points"))
+      abline(TabRes()[k,2], TabRes()[k,3]*1e-6, col="black", lwd=1)
+      #legend(0, input$num, bty = "n", paste(input$colmnames, " = ", signif(Tresults()[2,input$colmnames], 4)))
+    }
+  })
+  
   output$resultsTable_old <- renderTable({
     if (is.null(input$colmnames)) {
       return(NULL)
