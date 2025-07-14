@@ -18,6 +18,31 @@ load_file <- function(NAME, PATH, SHEET) {
 BaselineNP <- function(n) {
   n <- n - n[1]
 }
+
+#Functions to calculate slopes and intercepts
+LMt <- function(Y, delta, PLATE){
+  Time <- PLATE[[1]]
+  Yd <- Y[Y<delta]
+  Time <- Time[1:length(Yd)]
+  regMod <- lm(Yd~Time)
+  regRes <- summary(regMod)
+  slope <- regRes$coef[2]*1e6
+  int <- regRes$coef[1]
+  allRes <- c(int, slope)
+}
+
+LMtsq <- function(Y, delta, PLATE){
+  Time <- PLATE[[1]]
+  Timesq <- Time^2
+  Yd <- Y[Y<delta]
+  Timesq <- Timesq[1:length(Yd)]
+  regMod <- lm(Yd~Timesq)
+  regRes <- summary(regMod)
+  slope <- regRes$coef[2]*1e9
+  int <- regRes$coef[1]
+  allRes <- c(int, slope)
+}
+
 function(input, output) {
   readDatapre <- reactive({
     inputFile <- input$data1
