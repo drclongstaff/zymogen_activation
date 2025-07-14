@@ -173,6 +173,8 @@ function(input, output) { #Import user or supplied data
     }
   })
 
+  output$tabres <- renderTable({ TabRes()})
+  
   output$myplotAll <- renderPlot({
     if (is.null(input$colmnames)) {
       return(NULL)
