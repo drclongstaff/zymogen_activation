@@ -241,6 +241,28 @@ function(input, output) { #Import user or supplied data
     }
   })
   
+  output$linear <- renderPlot({
+    par(mfrow = c(2,2))
+    
+    Y <- readData()[[input$colmnames]]
+    Yd <- Y[Y<input$num]
+    Time <- readData()[[1]][1:length(Yd)]
+    Timesq <- Time^2
+    LMt <- lm(Yd~Time)
+    LMtsq <- lm(Yd~Timesq)
+    if (input$sqr) {
+      plot(residuals.lm(LMtsq), bty = "n", main= paste("Residuals for fit with adj Rsq", signif(summary(LMtsq)$adj.r.squared),digits=4))
+      #legend(0,max(residuals.lm(LMtsq)), bty = "n", paste("Adj Rsq", signif(summary(LMtsq)$adj.r.squared)),2)
+      qqnorm(LMtsq$residuals, main="qq norm", bty = "n")
+      qqline(LMtsq$residuals, lty=2, bty = "n")
+    }
+    else {
+      plot(residuals.lm(LMt), bty = "n", main= paste("Residuals for fit with adj Rsq", signif(summary(LMt)$adj.r.squared), digits=4))
+      #legend(0,max(residuals.lm(LMt)), bty = "n", paste("Adj R^2", signif(summary(LMt)$adj.r.squared)),2)
+      qqnorm(LMt$residuals, main="qq norm", bty = "n")
+      qqline(LMt$residuals, lty=2, bty = "n")
+    }
+  })
   output$resultsTable_old <- renderTable({
     if (is.null(input$colmnames)) {
       return(NULL)
