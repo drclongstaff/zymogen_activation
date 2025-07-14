@@ -3,6 +3,7 @@ library(readxl)
 library(DT)
 library(tibble)
 library(purrr)
+library(dplyr)
 
 # This function is for loading user data
 load_file <- function(NAME, PATH, SHEET) {
@@ -146,9 +147,8 @@ function(input, output) { #Import user or supplied data
     # output$contents<-renderDataTable({
     readData()
   })
-
+#Generate results table using slope and intercept functions for time and timesq
   TabRes <- reactive({
-    
     #myRestsq <- data.frame(sapply(readData()[,-1], function(x) LMtsq(x, input$num, readData())))
     #myRestsq <- readData()[,-1] |> map_df(~LMtsq(.x, input$num, readData())) |> as.data.frame()
     TabRes <- readData()[,-1] |> map_df(~data.frame(TInt=LMt(.x, input$num, readData())[1],
@@ -157,14 +157,24 @@ function(input, output) { #Import user or supplied data
                                                     TsqSlope=LMtsq(.x, input$num, readData())[2])) |> 
       add_column(Well=colnames(readData()[,-1]), .before = 1)
     
-    
+
     TabRes #<- data.frame(TabRes)
-    write_clip(TabRes)   
+    #write_clip(TabRes)   
+  })
+
+  #Make the results table into a matrix for presentation as a table   
+  output$resultsTable <- renderTable({
+    
+    if (input$sqr){
+      matrix(TabRes()[[5]], byrow = TRUE, nrow = input$numrows)
+    }
+    else {
+      matrix(TabrRes()[[3]], byrow = TRUE, nrow = input$numrows)
+    }
   })
 
 
-
-  output$resultsTable <- renderTable({
+  output$resultsTable_old <- renderTable({
     if (is.null(input$colmnames)) {
       return(NULL)
     } # To stop this section running and producing an error before the data has uploaded
