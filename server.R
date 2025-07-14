@@ -84,16 +84,12 @@ function(input, output) { #Import user or supplied data
 
 
   var <- reactive({
-    plate0 <- readDatapre()
-    plate1 <- plate0[, -1]
-    mycols <- colnames(plate1)
+    mycols <- colnames(readDatapre()[,-1])
   })
 
 
   var1 <- reactive({
-    plate0 <- readData()
-    plate1 <- plate0[, -1]
-    mycols <- colnames(plate1)
+    mycols <- colnames(readData()[,-1])
   })
 
 
