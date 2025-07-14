@@ -1,7 +1,7 @@
 library(shiny)
 library(DT)
 
-Thisversion <- "version 0.73a"
+Thisversion <- "version 0.79"
 ThisApp <- "Analysis of Zymogen Activation"
 fluidPage(
 
@@ -105,16 +105,7 @@ fluidPage(
 
 
 
-          # fluidRow(
-
-
-          column(
-            5,
-            radioButtons(
-              inputId = "curveRes", label = "Results to plot",
-              choices = c("Absorbance", "Residual"), selected = "Absorbance"
-            )
-          )
+         
         ),
         tabPanel("Raw data", DTOutput("contents")),
         # tabPanel("Raw data", dataTableOutput("contents")),
