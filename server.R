@@ -23,6 +23,7 @@ BaselineNP <- function(n) {
 }
 
 #Functions to calculate slopes and intercepts
+#Using time
 LMt <- function(Y, delta, PLATE){
   Time <- PLATE[[1]]
   Yd <- Y[Y<delta]
@@ -33,7 +34,7 @@ LMt <- function(Y, delta, PLATE){
   int <- regRes$coef[1]
   allRes <- c(int, slope)
 }
-
+#Using time squared
 LMtsq <- function(Y, delta, PLATE){
   Time <- PLATE[[1]]
   Timesq <- Time^2
