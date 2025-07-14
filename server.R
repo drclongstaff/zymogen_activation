@@ -1,6 +1,8 @@
 library(shiny)
 library(readxl)
 library(DT)
+library(tibble)
+library(purrr)
 
 # This function is for loading user data
 load_file <- function(NAME, PATH, SHEET) {
@@ -43,7 +45,7 @@ LMtsq <- function(Y, delta, PLATE){
   allRes <- c(int, slope)
 }
 
-function(input, output) {
+function(input, output) { #Import user or supplied data
   readDatapre <- reactive({
     inputFile <- input$data1
     if (is.null(inputFile)) {
@@ -61,9 +63,23 @@ function(input, output) {
       value = length(readDatapre()[, 1])
     )
   })
-
+#Update user data with max time or time delay or zero baseline
   readData <- reactive({
-    readDatapre()[1:input$maxt, ]
+    if (is.null(input$maxt)) {
+      return(NULL)
+    } # To stop this section running and producing an error before the data has uploaded
+    readData0 <- readDatapre()[1:input$maxt, ]#set max time
+    readData0[[1]] <- readData0[[1]]+input$delay # add time delay
+    if (input$zero) {
+      #readData1<- as.data.frame(lapply(readData0, function(x) BaselineNP(x))) #This not quite working with time delay
+      readData1 <- readData0[,-1] |> map_df(~BaselineNP(.x)) |> add_column("Time"= readData0[[1]], .before = 1) |> as.data.frame()
+    } 
+    else {
+      readData1 <- readData0
+    }
+    
+    readData1
+    
   })
 
 
