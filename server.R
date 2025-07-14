@@ -333,25 +333,23 @@ function(input, output) { #Import user or supplied data
   })
 
   output$text3 <- renderText({
-    if (input$sqr) {
-      paste("Rates Abs/s² x 1e9 for maximum absorbance ", input$num, "and", input$maxt, "data points")
-    } else {
-      (paste("Rates Abs/s x 1e6 for maximum absorbance ", input$num, "and", input$maxt, "data points"))
-    }
-  })
-
-  output$text4 <- renderText({
-    if (input$sqr) {
+    if (input$names) {
+      txt <- "Wells"
+    } else if (input$sqr) {
       if (input$pM) {
-        paste("Rate of activation in pM/s for maximum absorbance", input$num, "and", input$maxt, "data points")
-      } # else if (input$pM) paste( "pM", input$num)
+        txt <- paste("Rates of activation in pM/s for maximum absorbance ", input$num, "and", input$maxt, "data points")
+      }
       else {
-        ""
+        txt <- paste("Rates Abs/s² x 1e9 for maximum absorbance ", input$num, "and", input$maxt, "data points")
       }
     } else {
-      ""
+      txt <- paste("Rates Abs/s x 1e6 for maximum absorbance ", input$num, "and", input$maxt, "data points")
     }
+    
   })
+  
+
+  
 
   output$myplotAll_old <- renderPlot({
     if (is.null(input$colmnames)) {

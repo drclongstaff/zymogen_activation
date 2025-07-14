@@ -92,10 +92,8 @@ fluidPage(
         type = "tab",
         tabPanel("Plots",
           plotOutput(outputId = "myplotAll"),
+          tags$br(),
           h4(textOutput("text3")),
-          tags$br(),
-          tags$br(),
-          h4(textOutput("text4")),
           h5(""), tableOutput("resultsTable"),
           align = "center"
         ),
