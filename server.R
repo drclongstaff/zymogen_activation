@@ -150,6 +150,7 @@ function(input, output) { #Import user or supplied data
   })
 #Generate results table using slope and intercept functions for time and timesq
   TabRes <- reactive({
+    if (is.null(readData())) { return(NULL)}
     AbsCols <- readData()[,-1]
     TabRes <- AbsCols |> map_df(~data.frame(TInt=LMt(.x, input$num, readData())[1],
                                                     TSlope=LMt(.x, input$num, readData())[2],
