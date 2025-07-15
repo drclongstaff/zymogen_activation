@@ -30,7 +30,7 @@ LMt <- function(Y, delta, PLATE){
   Time <- Time[1:length(Yd)]
   regMod <- lm(Yd~Time)
   regRes <- summary(regMod)
-  slope <- regRes$coef[2]*1e6
+  slope <- regRes$coef[2]*1e6 #1e6 to make the numbers readable
   int <- regRes$coef[1]
   allRes <- c(int, slope)
 }
@@ -42,12 +42,13 @@ LMtsq <- function(Y, delta, PLATE){
   Timesq <- Timesq[1:length(Yd)]
   regMod <- lm(Yd~Timesq)
   regRes <- summary(regMod)
-  slope <- regRes$coef[2]*1e9
+  slope <- regRes$coef[2]*1e9 #1e9 to make the numbers readable
   int <- regRes$coef[1]
   allRes <- c(int, slope)
 }
 
-function(input, output) { #Import user or supplied data
+#Import user or supplied data
+function(input, output) { 
   readDatapre <- reactive({
     inputFile <- input$data1
     if (is.null(inputFile)) {
@@ -59,30 +60,31 @@ function(input, output) { #Import user or supplied data
       )
     }
   })
+  
+  #Get the number or readings or trim them
   output$maxt <- renderUI({
     numericInput("maxt",
       label = h5("Number of points"),
       value = length(readDatapre()[, 1])
     )
   })
+  
 #Update user data with max time or time delay or zero baseline
   readData <- reactive({
-    if (is.null(input$maxt)) {
-      return(NULL)
-    } # To stop this section running and producing an error before the data has uploaded
+    if (is.null(input$maxt)) {return(NULL)} # To prevent an error before the data has uploaded
     readData0 <- readDatapre()[1:input$maxt, ]#set max time
     readData0[[1]] <- readData0[[1]]+input$delay # add time delay
+    #Optional zero by subtracting first reading using BaselineNP function
     if (input$zero) {
       readData1 <- readData0[,-1] |> map_df(~BaselineNP(.x)) |> add_column("Time"= readData0[[1]], .before = 1) |> as.data.frame()
     } 
     else {
       readData1 <- readData0
     }
-    
     readData1
-    
   })
 
+  #Get colnames (wellnames)
   var <- reactive({
     mycols <- colnames(readDatapre()[,-1])
   })
@@ -92,7 +94,7 @@ function(input, output) { #Import user or supplied data
     mycols <- colnames(readData()[,-1])
   })
 
-
+  #Select well for Curve tab investigation
   output$what <- renderUI({
     selectInput("colmnames",
       label = h5("Data in 'Curve' tab"),
@@ -100,7 +102,7 @@ function(input, output) { #Import user or supplied data
     )
   })
 
-
+  #This is for the Raw data tab
   output$contents <- renderDT({
     readData()
   })
@@ -108,7 +110,7 @@ function(input, output) { #Import user or supplied data
   #Generate results table using slope and intercept functions for time and timesq
   TabRes <- reactive({
     if (is.null(readData())) { return(NULL)} #Very useful to avoid error messages
-    AbsCols <- readData()[,-1]
+    AbsCols <- readData()[,-1] #Do not analyse the time column 
     TabRes <- AbsCols |> map_df(~data.frame(TInt=LMt(.x, input$num, readData())[1],
                                                     TSlope=LMt(.x, input$num, readData())[2],
                                                     TsqInt=LMtsq(.x, input$num, readData())[1],
@@ -124,40 +126,46 @@ function(input, output) { #Import user or supplied data
     
     #Equation to change time sq rates into pM/s
     ratepMs <- 0.5 * input$Ext * (input$kcat * input$Sub) / (input$Km + input$Sub)
-    #Selection of appropriate table of names or of rates, vs time time sq or in pM/s
+    
+    #Selection of appropriate table of names or of rates, vs time or time sq or in pM/s
     if (input$names) {
       data <- colnames(readData()[,-1])
     } else if (input$sqr) {
-      if (input$pM) {
+        if (input$pM) {
         data <- (1e-9 * TabRes()[[5]] / ratepMs) * 1e12
-      }
-      else {
+          }
+        else {
         data <- TabRes()[[5]]
-      }
+            }
     } else {
       data <- TabRes()[[3]]
-    }
+          }
     matrix(data, byrow = TRUE, nrow = input$numrows)
   })
 
   #Table in tab of All results
   output$tabres <- renderTable({
+    #Add some rounding to make the table more presentable
     TabRes_round <- TabRes() |> mutate(across(2:5, \(x) signif(x, digits = 6)))
+    #Improve table headings
     colnames(TabRes_round) <-  c("Wells", "T_Intercept", "T_Slope x1e6", "Tsq_Intercept", "Tsq_Slope x1e9")
     TabRes_round
   })
   
-  #Graph of all plots on opening tab
+  #PLOTTING
+  #Graph of all plots on opening Plots tab
   output$myplotAll <- renderPlot({
     if (is.null(input$colmnames)) {return(NULL) } # To avoid errors before the data has uploaded
    
+    #Arrangement of plots
     nWells <- length(readData()[,-1])
     par(mfrow = c(input$numrows, nWells/input$numrows))
     par(mar = c(0.2, 0.2, 0.2, 0.2))
     
     Time <- readData()[[1]]
     Timesq <- Time^2
-    #Loop to generate mini plots of plate
+    
+    #Loop to generate mini plots of wells using time or time sq
     for (i in seq_along(readData()[,-1])) {
       Yd <- readData()[[i+1]]
       if (input$sqr) {
@@ -170,9 +178,7 @@ function(input, output) { #Import user or supplied data
         abline(TabRes()[i,2], TabRes()[i,3]*1e-6, col="black", lwd=1)
         legend(x=0, y=input$num, bty = "n", colnames(readData())[i+1], cex = 1.5, xjust = 0.5) 
       }
-      
     }
-    
   })
 
   #Output of single well plot in Curve tab
@@ -198,7 +204,7 @@ function(input, output) { #Import user or supplied data
     }
   })
   
-  #Add plots of residuals and qqnorm of chosen well
+  #Add plots of residuals and qqnorm of chosen well in Curve tab
   output$linear <- renderPlot({
     par(mfrow = c(2,2))
     
@@ -206,6 +212,7 @@ function(input, output) { #Import user or supplied data
     Yd <- Y[Y<input$num]
     Time <- readData()[[1]][1:length(Yd)]
     Timesq <- Time^2
+    
     #In this case run the lm again for residuals
     LMt <- lm(Yd~Time)
     LMtsq <- lm(Yd~Timesq)
@@ -236,6 +243,5 @@ function(input, output) { #Import user or supplied data
     } else {
       txt <- paste("Rates Abs/s x 1e6 for maximum absorbance ", input$num, "and", input$maxt, "data points")
     }
-    
   })
 }
