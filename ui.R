@@ -102,9 +102,7 @@ fluidPage(
           plotOutput(outputId = "myplot"),
           plotOutput(outputId = "linear"),
         ),
-        
         tabPanel("All results", tableOutput("tabres")),
-        
         tabPanel("Raw data", DTOutput("contents")),
         # tabPanel("Raw data", dataTableOutput("contents")),
 
