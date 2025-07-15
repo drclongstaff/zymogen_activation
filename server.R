@@ -73,7 +73,6 @@ function(input, output) { #Import user or supplied data
     readData0 <- readDatapre()[1:input$maxt, ]#set max time
     readData0[[1]] <- readData0[[1]]+input$delay # add time delay
     if (input$zero) {
-      #readData1<- as.data.frame(lapply(readData0, function(x) BaselineNP(x))) #This not quite working with time delay
       readData1 <- readData0[,-1] |> map_df(~BaselineNP(.x)) |> add_column("Time"= readData0[[1]], .before = 1) |> as.data.frame()
     } 
     else {
@@ -83,7 +82,6 @@ function(input, output) { #Import user or supplied data
     readData1
     
   })
-
 
   var <- reactive({
     mycols <- colnames(readDatapre()[,-1])
@@ -104,10 +102,10 @@ function(input, output) { #Import user or supplied data
 
 
   output$contents <- renderDT({
-    # output$contents<-renderDataTable({
     readData()
   })
-#Generate results table using slope and intercept functions for time and timesq
+
+  #Generate results table using slope and intercept functions for time and timesq
   TabRes <- reactive({
     if (is.null(readData())) { return(NULL)} #Very useful to avoid error messages
     AbsCols <- readData()[,-1]
@@ -117,15 +115,16 @@ function(input, output) { #Import user or supplied data
                                                     TsqSlope=LMtsq(.x, input$num, readData())[2])) |> 
      add_column(Well=colnames(AbsCols), .before = 1)
     TabRes
-    #clipr::write_clip(TabRes)   
+    #clipr::write_clip(TabRes)  #Do not run in online version 
   })
 
-  #Make the results table into a matrix for presentation as a table   
+  #Make the TabRes into a matrix for presentation as a table in the UI  
   output$resultsTable <- renderTable({
-    if (is.null(TabRes())) { return(NULL)}
+    if (is.null(TabRes())) { return(NULL)} #To avoid flagging an error on start up
     
+    #Equation to change time sq rates into pM/s
     ratepMs <- 0.5 * input$Ext * (input$kcat * input$Sub) / (input$Km + input$Sub)
-    
+    #Selection of appropriate table of names or of rates, vs time time sq or in pM/s
     if (input$names) {
       data <- colnames(readData()[,-1])
     } else if (input$sqr) {
@@ -141,17 +140,16 @@ function(input, output) { #Import user or supplied data
     matrix(data, byrow = TRUE, nrow = input$numrows)
   })
 
+  #Table in tab of All results
   output$tabres <- renderTable({
     TabRes_round <- TabRes() |> mutate(across(2:5, \(x) signif(x, digits = 6)))
     colnames(TabRes_round) <-  c("Wells", "T_Intercept", "T_Slope x1e6", "Tsq_Intercept", "Tsq_Slope x1e9")
     TabRes_round
   })
   
-  
+  #Graph of all plots on opening tab
   output$myplotAll <- renderPlot({
-    if (is.null(input$colmnames)) {
-     return(NULL)
-    } # To stop this section running and producing an error before the data has uploaded
+    if (is.null(input$colmnames)) {return(NULL) } # To avoid errors before the data has uploaded
    
     nWells <- length(readData()[,-1])
     par(mfrow = c(input$numrows, nWells/input$numrows))
@@ -159,6 +157,7 @@ function(input, output) { #Import user or supplied data
     
     Time <- readData()[[1]]
     Timesq <- Time^2
+    #Loop to generate mini plots of plate
     for (i in seq_along(readData()[,-1])) {
       Yd <- readData()[[i+1]]
       if (input$sqr) {
@@ -176,12 +175,15 @@ function(input, output) { #Import user or supplied data
     
   })
 
+  #Output of single well plot in Curve tab
   output$myplot <- renderPlot({
+    #Select the well of interest
     k<-which(TabRes()[, 1]==input$colmnames)
     Yd <- readData()[[input$colmnames]]
     Time <- readData()[[1]][1:length(Yd)]
     Timesq <- Time^2
     
+    #Choose time sq or time to plot
     if (input$sqr) { 
       plot(Timesq, Yd,col = "red", pch = 1,  xlim = c(0, max(Timesq)), ylim = c(0, input$num),
            main = paste("Slope for time sq plot of", input$colmnames,"=", signif(TabRes()[k,5], 4), "x 1e9 abs/s^2",
@@ -196,6 +198,7 @@ function(input, output) { #Import user or supplied data
     }
   })
   
+  #Add plots of residuals and qqnorm of chosen well
   output$linear <- renderPlot({
     par(mfrow = c(2,2))
     
@@ -203,8 +206,10 @@ function(input, output) { #Import user or supplied data
     Yd <- Y[Y<input$num]
     Time <- readData()[[1]][1:length(Yd)]
     Timesq <- Time^2
+    #In this case run the lm again for residuals
     LMt <- lm(Yd~Time)
     LMtsq <- lm(Yd~Timesq)
+    #Select time or time sq
     if (input$sqr) {
       plot(residuals.lm(LMtsq), bty = "n", main= paste("Residuals for fit with adj Rsq", signif(summary(LMtsq)$adj.r.squared),digits=4))
       qqnorm(LMtsq$residuals, main="qq norm", bty = "n")
@@ -217,6 +222,7 @@ function(input, output) { #Import user or supplied data
     }
   })
   
+  #Text3 is the heading above the table (matrix) of result on the Plots tab
   output$text3 <- renderText({
     if (input$names) {
       txt <- "Wells"
