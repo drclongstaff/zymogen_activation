@@ -1,4 +1,8 @@
-
+library(shiny)
+library(readxl)
+library(DT)
+library(tibble)
+library(dplyr)
 
 # This function is for loading user data
 load_file <- function(NAME, PATH, SHEET) {
