@@ -1,7 +1,6 @@
 library(shiny)
 library(readxl)
 library(DT)
-#library(purrr)
 library(tibble)
 library(dplyr)
 
