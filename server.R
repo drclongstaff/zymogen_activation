@@ -115,7 +115,7 @@ function(input, output) {
   })
 
   # Generate results table using slope and intercept functions for time and timesq
-  TabRes <- reactive({
+  TabRes_old <- reactive({
     if (is.null(readData())) {
       return(NULL)
     } # Very useful to avoid error messages
@@ -130,6 +130,20 @@ function(input, output) {
       add_column(Well = colnames(AbsCols), .before = 1)
     TabRes
     # clipr::write_clip(TabRes)  #Do not run in online version
+  })
+  
+  TabRes <- reactive({
+    if (is.null(readData())) { return(NULL)}
+    myRest <- sapply(readData()[,-1], function(x) LMt(x, input$num, readData()))
+    myRestsq <- sapply(readData()[,-1], function(x) LMtsq(x, input$num, readData()))
+    
+    AllRes <- data.frame(Wells=colnames(readData()[,-1]), 
+                         TInt=as.numeric(myRest[1,]),
+                         TSlope=as.numeric(myRest[2,]), 
+                         TsqInt=as.numeric(myRestsq[1,]),
+                         TsqSlope=as.numeric(myRestsq[2,])) |> 
+      mutate(across(2:5, \(x) signif(x, digits = 4)))
+    AllRes
   })
 
   # Make the TabRes into a matrix for presentation as a table in the UI
