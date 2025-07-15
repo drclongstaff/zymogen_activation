@@ -1,8 +1,8 @@
 library(shiny)
 library(readxl)
 library(DT)
-library(tibble)
 library(purrr)
+library(tibble)
 library(dplyr)
 
 # This function is for loading user data
