@@ -1,5 +1,6 @@
 library(shiny)
 library(DT)
+library(purrr)
 
 Thisversion <- "version 0.79"
 ThisApp <- "Analysis of Zymogen Activation"
