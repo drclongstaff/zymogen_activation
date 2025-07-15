@@ -1,5 +1,8 @@
 library(shiny)
+library(readxl)
 library(DT)
+library(tibble)
+library(dplyr)
 
 Thisversion <- "version 0.79"
 ThisApp <- "Analysis of Zymogen Activation"
