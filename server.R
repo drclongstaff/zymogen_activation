@@ -113,24 +113,7 @@ function(input, output) {
     readData()
   })
 
-  # Generate results table using slope and intercept functions for time and timesq
-  TabRes_old <- reactive({
-    if (is.null(readData())) {
-      return(NULL)
-    } # Very useful to avoid error messages
-    AbsCols <- readData()[, -1] # Do not analyse the time column
-    TabRes <- AbsCols |>
-      map_df(~ data.frame(
-        TInt = LMt(.x, input$num, readData())[1],
-        TSlope = LMt(.x, input$num, readData())[2],
-        TsqInt = LMtsq(.x, input$num, readData())[1],
-        TsqSlope = LMtsq(.x, input$num, readData())[2]
-      )) |>
-      add_column(Well = colnames(AbsCols), .before = 1)
-    TabRes
-    # clipr::write_clip(TabRes)  #Do not run in online version
-  })
-  
+# Generate results table using slope and intercept functions for time and timesq
   TabRes <- reactive({
     if (is.null(readData())) { return(NULL)}
     myRest <- sapply(readData()[,-1], function(x) LMt(x, input$num, readData()))
