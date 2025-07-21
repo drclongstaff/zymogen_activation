@@ -127,9 +127,7 @@ function(input, output) {
 
   # Make the TabRes into a matrix for presentation as a table in the UI
   output$resultsTable <- renderTable({
-    if (is.null(TabRes())) {
-      return(NULL)
-    } # To avoid flagging an error on start up
+    if (is.null(TabRes())) {return(NULL)} # To avoid flagging an error on start up
 
     # Equation to change time sq rates into pM/s
     ratepMs <- 0.5 * input$Ext * (input$kcat * input$Sub) / (input$Km + input$Sub)
@@ -146,7 +144,10 @@ function(input, output) {
     } else {
       data <- TabRes()[[3]]
     }
-    matrix(data, byrow = TRUE, nrow = input$numrows)
+    matRes <- matrix(data, byrow = TRUE, nrow = input$numrows)
+    #rownames(matRes) <- (paste0("R_", seq(nrow(matRes))))  
+    colnames(matRes) <- (paste0("C_", seq(ncol(matRes))))
+    matRes
   })
 
   # Table in tab of All results
