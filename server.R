@@ -30,7 +30,7 @@ LMt <- function(Y, delta, PLATE) {
   Time <- Time[1:length(Yd)]
   regMod <- lm(Yd ~ Time)
   regRes <- summary(regMod)
-  slope <- regRes$coef[2] * 1e6 # 1e6 to make the numbers readable
+  slope <- signif(regRes$coef[2] * 1e6, digits = 4) # 1e6 to make the numbers readable
   int <- regRes$coef[1]
   allRes <- c(int, slope)
 }
@@ -42,7 +42,7 @@ LMtsq <- function(Y, delta, PLATE) {
   Timesq <- Timesq[1:length(Yd)]
   regMod <- lm(Yd ~ Timesq)
   regRes <- summary(regMod)
-  slope <- regRes$coef[2] * 1e9 # 1e9 to make the numbers readable
+  slope <- signif(regRes$coef[2] * 1e9, digits = 4) # 1e9 to make the numbers readable
   int <- regRes$coef[1]
   allRes <- c(int, slope)
 }
@@ -145,11 +145,10 @@ function(input, output) {
 
   # Table in tab of All results
   output$tabres <- renderTable({
-    # Add some rounding to make the table more presentable
-    TabRes_round <- TabRes() |> mutate(across(2:5, \(x) signif(x, digits = 6)))
+    tabres <- TabRes() #|> mutate(across(2:5, \(x) signif(x, digits = 6)))
     # Improve table headings
-    colnames(TabRes_round) <- c("Wells", "T_Intercept", "T_Slope x1e6", "Tsq_Intercept", "Tsq_Slope x1e9")
-    TabRes_round
+    colnames(tabres) <- c("Wells", "T_Intercept", "T_Slope x1e6", "Tsq_Intercept", "Tsq_Slope x1e9")
+    tabres
   })
 
   # PLOTTING
@@ -172,11 +171,11 @@ function(input, output) {
       Yd <- readData()[[i + 1]]
       if (input$sqr) {
         plot(Timesq, Yd, col = "red", pch = 20, xaxt = "n", yaxt = "n", xlim = c(0, max(Timesq)), ylim = c(0, input$num))
-        abline(TabRes()[i, 4], TabRes()[i, 5] * 1e-9, col = "black", lwd = 1)
+        abline(TabRes()[i, 4], TabRes()[i, 5] * 1e-9, col = "black", lwd = 1) #return table results to correct scale
         legend(x = 0, y = input$num, bty = "n", colnames(readData())[i + 1], cex = 1.5, xjust = 0.5)
       } else {
         plot(Time, Yd, col = "red", pch = 20, xaxt = "n", yaxt = "n", xlim = c(0, max(Time)), ylim = c(0, input$num))
-        abline(TabRes()[i, 2], TabRes()[i, 3] * 1e-6, col = "black", lwd = 1)
+        abline(TabRes()[i, 2], TabRes()[i, 3] * 1e-6, col = "black", lwd = 1) #return table results to correct scale
         legend(x = 0, y = input$num, bty = "n", colnames(readData())[i + 1], cex = 1.5, xjust = 0.5)
       }
     }
@@ -195,7 +194,7 @@ function(input, output) {
       plot(Timesq, Yd,
         col = "red", pch = 1, xlim = c(0, max(Timesq)), ylim = c(0, input$num),
         main = paste(
-          "Slope for time sq plot of", input$colmnames, "=", signif(TabRes()[k, 5], 4), "x 1e9 abs/s^2",
+          "Slope for time sq plot of", input$colmnames, "=", TabRes()[k, 5], "x 1e9 abs/s^2",
           "over abs of ", input$num, "and", input$maxt, "points"
         )
       )
@@ -204,7 +203,7 @@ function(input, output) {
       plot(Time, Yd,
         col = "red", pch = 20, xlim = c(0, max(Time)), ylim = c(0, input$num),
         main = paste(
-          "Slope for time plot of", input$colmnames, "=", signif(TabRes()[k, 3], 4), "x 1e6 abs/s",
+          "Slope for time plot of", input$colmnames, "=", TabRes()[k, 3], "x 1e6 abs/s",
           "for absorbance of ", input$num, "and", input$maxt, "points"
         )
       )
