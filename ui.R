@@ -1,6 +1,6 @@
 library(shiny)
 #library(readxl)
-#library(DT)
+library(DT)
 #library(tibble)
 #library(dplyr)
 
