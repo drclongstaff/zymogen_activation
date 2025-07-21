@@ -71,20 +71,13 @@ function(input, output) {
 
   # Update user data with max time or time delay or zero baseline
   readData <- reactive({
-    if (is.null(input$maxt)) {
-      return(NULL)
-    } # To prevent an error before the data has uploaded
+    if (is.null(input$maxt)) {return(NULL)} # To prevent an error before the data has uploaded
     readData0 <- readDatapre()[1:input$maxt, ] # set max time
     readData0[[1]] <- readData0[[1]] + input$delay # add time delay
     # Optional zero by subtracting first reading using BaselineNP function
     if (input$zero) {
       readData1<- as.data.frame(sapply(readData0[,-1], function(x) BaselineNP(x))) |> 
         add_column("Time"= readData0[[1]], .before = 1)
-      #readData1 <- cbind("Time" = readData0[[1]], readData1)
-      #readData1 <- readData0[, -1] |>
-       # map_df(~ BaselineNP(.x)) |>
-        #add_column("Time" = readData0[[1]], .before = 1) |>
-       # as.data.frame()
     } else {
       readData1 <- readData0
     }
