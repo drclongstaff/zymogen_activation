@@ -30,7 +30,7 @@ LMt <- function(Y, delta, PLATE) {
   Time <- Time[1:length(Yd)]
   regMod <- lm(Yd ~ Time)
   regRes <- summary(regMod)
-  slope <- signif(regRes$coef[2] * 1e6, digits = 4) # 1e6 to make the numbers readable
+  slope <- signif(regRes$coef[2]*1e6, digits = 4) # 1e6 to make the numbers readable
   int <- regRes$coef[1]
   allRes <- c(int, slope)
 }
@@ -42,7 +42,7 @@ LMtsq <- function(Y, delta, PLATE) {
   Timesq <- Timesq[1:length(Yd)]
   regMod <- lm(Yd ~ Timesq)
   regRes <- summary(regMod)
-  slope <- signif(regRes$coef[2] * 1e9, digits = 4) # 1e9 to make the numbers readable
+  slope <- signif(regRes$coef[2]*1e9, digits = 4) # 1e9 to make the numbers readable
   int <- regRes$coef[1]
   allRes <- c(int, slope)
 }
@@ -146,6 +146,7 @@ function(input, output) {
   # Table in tab of All results
   output$tabres <- renderTable({
     tabres <- TabRes() #|> mutate(across(2:5, \(x) signif(x, digits = 6)))
+    #tabres <- formatC(TabRes(), format = "e", digits = 3)
     # Improve table headings
     colnames(tabres) <- c("Wells", "T_Intercept", "T_Slope x1e6", "Tsq_Intercept", "Tsq_Slope x1e9")
     tabres
