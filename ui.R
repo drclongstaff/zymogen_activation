@@ -4,7 +4,7 @@ library(shiny)
 #library(tibble)
 #library(dplyr)
 
-Thisversion <- "version 0.79"
+Thisversion <- "version 0.8"
 ThisApp <- "Analysis of Zymogen Activation"
 fluidPage(
 
