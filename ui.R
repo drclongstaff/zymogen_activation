@@ -1,10 +1,7 @@
 library(shiny)
-#library(readxl)
 library(DT)
-#library(tibble)
-#library(dplyr)
 
-Thisversion <- "version 0.8"
+Thisversion <- "version 0.81"
 ThisApp <- "Analysis of Zymogen Activation"
 fluidPage(
 
