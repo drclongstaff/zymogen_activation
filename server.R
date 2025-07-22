@@ -217,10 +217,10 @@ function(input, output) {
   # Add plots of residuals and qqnorm of chosen well in Curve tab
   output$linear <- renderPlot({
     par(mfrow = c(2, 2))
-
-    Y <- readData()[[input$colmnames]]
+    rdata <- readData()
+    Y <- rdata[[input$colmnames]]
     Yd <- Y[Y < input$num]
-    Time <- readData()[[1]][1:length(Yd)]
+    Time <- rdata[[1]][1:length(Yd)]
     Timesq <- Time^2
 
     # In this case run the lm again for residuals
