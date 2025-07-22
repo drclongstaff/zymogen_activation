@@ -201,7 +201,7 @@ function(input, output) {
           "over abs of ", input$num, "and", input$maxt, "points"
         )
       )
-      abline(tabres[k, 4], TabRes()[k, 5] * 1e-9, col = "black", lwd = 1)
+      abline(tabres[k, 4], tabres[k, 5] * 1e-9, col = "black", lwd = 1)
     } else {
       plot(Time, Yd,
         col = "red", pch = 20, xlim = c(0, max(Time)), ylim = c(0, input$num),
