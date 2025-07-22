@@ -30,7 +30,7 @@ LMt <- function(Y, delta, PLATE) {
   Time <- Time[1:length(Yd)]
   regMod <- lm(Yd ~ Time)
   regRes <- summary(regMod)
-  slope <- signif(regRes$coef[2]*1e6, digits = 4) # 1e6 to make the numbers readable
+  slope <- signif(regRes$coef[2] * 1e6, digits = 4) # 1e6 to make the numbers readable
   int <- regRes$coef[1]
   allRes <- c(int, slope)
 }
@@ -42,7 +42,7 @@ LMtsq <- function(Y, delta, PLATE) {
   Timesq <- Timesq[1:length(Yd)]
   regMod <- lm(Yd ~ Timesq)
   regRes <- summary(regMod)
-  slope <- signif(regRes$coef[2]*1e9, digits = 4) # 1e9 to make the numbers readable
+  slope <- signif(regRes$coef[2] * 1e9, digits = 4) # 1e9 to make the numbers readable
   int <- regRes$coef[1]
   allRes <- c(int, slope)
 }
@@ -71,13 +71,15 @@ function(input, output) {
 
   # Update user data with max time or time delay or zero baseline
   readData <- reactive({
-    if (is.null(input$maxt)) {return(NULL)} # To prevent an error before the data has uploaded
+    if (is.null(input$maxt)) {
+      return(NULL)
+    } # To prevent an error before the data has uploaded
     readData0 <- readDatapre()[1:input$maxt, ] # set max time
     readData0[[1]] <- readData0[[1]] + input$delay # add time delay
     # Optional zero by subtracting first reading using BaselineNP function
     if (input$zero) {
-      readData1<- as.data.frame(sapply(readData0[,-1], function(x) BaselineNP(x))) |> 
-        add_column("Time"= readData0[[1]], .before = 1)
+      readData1 <- as.data.frame(sapply(readData0[, -1], function(x) BaselineNP(x))) |>
+        add_column("Time" = readData0[[1]], .before = 1)
     } else {
       readData1 <- readData0
     }
@@ -107,21 +109,28 @@ function(input, output) {
     readData()
   })
 
-# Generate results table using slope and intercept functions for time and timesq
+  # Generate results table using slope and intercept functions for time and timesq
   TabRes <- reactive({
-    if (is.null(readData())) { return(NULL)}
+    if (is.null(readData())) {
+      return(NULL)
+    }
     rData <- readData()
-    TabRes <- rData[,-1] |> imap(~data.frame(Well = .y,  # .y gives you the column name
-                                                TInt=LMt(.x, input$num, rData)[1],
-                                                 TSlope=LMt(.x, input$num, rData)[2],
-                                                 TsqInt=LMtsq(.x, input$num, rData)[1],
-                                                 TsqSlope=LMtsq(.x,input$num, rData)[2])) |>
-                                                list_rbind()
+    TabRes <- rData[, -1] |>
+      imap(~ data.frame(
+        Well = .y, # .y gives you the column name
+        TInt = LMt(.x, input$num, rData)[1],
+        TSlope = LMt(.x, input$num, rData)[2],
+        TsqInt = LMtsq(.x, input$num, rData)[1],
+        TsqSlope = LMtsq(.x, input$num, rData)[2]
+      )) |>
+      list_rbind()
   })
 
   # Make the TabRes into a matrix for presentation as a table in the UI
   output$resultsTable <- renderTable({
-    if (is.null(TabRes())) {return(NULL)} # To avoid flagging an error on start up
+    if (is.null(TabRes())) {
+      return(NULL)
+    } # To avoid flagging an error on start up
     Tabres <- TabRes()
     # Equation to change time sq rates into pM/s
     ratepMs <- 0.5 * input$Ext * (input$kcat * input$Sub) / (input$Km + input$Sub)
@@ -139,7 +148,7 @@ function(input, output) {
       data <- Tabres[[3]]
     }
     matRes <- matrix(data, byrow = TRUE, nrow = input$numrows)
-    #rownames(matRes) <- (paste0("R_", seq(nrow(matRes))))  
+    # rownames(matRes) <- (paste0("R_", seq(nrow(matRes))))
     colnames(matRes) <- (paste0("C_", seq(ncol(matRes))))
     matRes
   })
@@ -147,7 +156,7 @@ function(input, output) {
   # Table in tab of All results
   output$tabres <- renderTable({
     tabres <- TabRes() #|> mutate(across(2:5, \(x) signif(x, digits = 6)))
-    #tabres <- formatC(TabRes(), format = "e", digits = 3)
+    # tabres <- formatC(TabRes(), format = "e", digits = 3)
     # Improve table headings
     colnames(tabres) <- c("Wells", "T_Intercept", "T_Slope x1e6", "Tsq_Intercept", "Tsq_Slope x1e9")
     tabres
@@ -156,7 +165,9 @@ function(input, output) {
   # PLOTTING
   # Graph of all plots on opening Plots tab
   output$myplotAll <- renderPlot({
-    if (is.null(input$colmnames)) {return(NULL)} # To avoid errors before the data has uploaded
+    if (is.null(input$colmnames)) {
+      return(NULL)
+    } # To avoid errors before the data has uploaded
     rdata <- readData()
     tabres <- TabRes()
     # Arrangement of plots
@@ -172,11 +183,11 @@ function(input, output) {
       Yd <- rdata[[i + 1]]
       if (input$sqr) {
         plot(Timesq, Yd, col = "red", pch = 20, xaxt = "n", yaxt = "n", xlim = c(0, max(Timesq)), ylim = c(0, input$num))
-        abline(tabres[i, 4], tabres[i, 5] * 1e-9, col = "black", lwd = 1) #return table results to correct scale
+        abline(tabres[i, 4], tabres[i, 5] * 1e-9, col = "black", lwd = 1) # return table results to correct scale
         legend(x = 0, y = input$num, bty = "n", colnames(rdata)[i + 1], cex = 1.5, xjust = 0.5)
       } else {
         plot(Time, Yd, col = "red", pch = 20, xaxt = "n", yaxt = "n", xlim = c(0, max(Time)), ylim = c(0, input$num))
-        abline(tabres[i, 2], tabres[i, 3] * 1e-6, col = "black", lwd = 1) #return table results to correct scale
+        abline(tabres[i, 2], tabres[i, 3] * 1e-6, col = "black", lwd = 1) # return table results to correct scale
         legend(x = 0, y = input$num, bty = "n", colnames(rdata)[i + 1], cex = 1.5, xjust = 0.5)
       }
     }
