@@ -185,9 +185,11 @@ function(input, output) {
   # Output of single well plot in Curve tab
   output$myplot <- renderPlot({
     # Select the well of interest
-    k <- which(TabRes()[, 1] == input$colmnames)
-    Yd <- readData()[[input$colmnames]]
-    Time <- readData()[[1]][1:length(Yd)]
+    rdata <- readData()
+    tabres <- TabRes()
+    k <- which(tabres[, 1] == input$colmnames)
+    Yd <- rdata[[input$colmnames]]
+    Time <- rdata[[1]][1:length(Yd)]
     Timesq <- Time^2
 
     # Choose time sq or time to plot
@@ -199,16 +201,16 @@ function(input, output) {
           "over abs of ", input$num, "and", input$maxt, "points"
         )
       )
-      abline(TabRes()[k, 4], TabRes()[k, 5] * 1e-9, col = "black", lwd = 1)
+      abline(tabres[k, 4], TabRes()[k, 5] * 1e-9, col = "black", lwd = 1)
     } else {
       plot(Time, Yd,
         col = "red", pch = 20, xlim = c(0, max(Time)), ylim = c(0, input$num),
         main = paste(
-          "Slope for time plot of", input$colmnames, "=", TabRes()[k, 3], "x 1e6 abs/s",
+          "Slope for time plot of", input$colmnames, "=", tabres[k, 3], "x 1e6 abs/s",
           "for absorbance of ", input$num, "and", input$maxt, "points"
         )
       )
-      abline(TabRes()[k, 2], TabRes()[k, 3] * 1e-6, col = "black", lwd = 1)
+      abline(tabres[k, 2], tabres[k, 3] * 1e-6, col = "black", lwd = 1)
     }
   })
 
