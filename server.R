@@ -156,29 +156,28 @@ function(input, output) {
   # PLOTTING
   # Graph of all plots on opening Plots tab
   output$myplotAll <- renderPlot({
-    if (is.null(input$colmnames)) {
-      return(NULL)
-    } # To avoid errors before the data has uploaded
-
+    if (is.null(input$colmnames)) {return(NULL)} # To avoid errors before the data has uploaded
+    rdata <- readData()
+    tabres <- TabRes()
     # Arrangement of plots
-    nWells <- length(readData()[, -1])
+    nWells <- length(rdata[, -1])
     par(mfrow = c(input$numrows, nWells / input$numrows))
     par(mar = c(0.2, 0.2, 0.2, 0.2))
 
-    Time <- readData()[[1]]
+    Time <- rdata[[1]]
     Timesq <- Time^2
 
     # Loop to generate mini plots of wells using time or time sq
-    for (i in seq_along(readData()[, -1])) {
-      Yd <- readData()[[i + 1]]
+    for (i in seq_along(rdata[, -1])) {
+      Yd <- rdata[[i + 1]]
       if (input$sqr) {
         plot(Timesq, Yd, col = "red", pch = 20, xaxt = "n", yaxt = "n", xlim = c(0, max(Timesq)), ylim = c(0, input$num))
-        abline(TabRes()[i, 4], TabRes()[i, 5] * 1e-9, col = "black", lwd = 1) #return table results to correct scale
-        legend(x = 0, y = input$num, bty = "n", colnames(readData())[i + 1], cex = 1.5, xjust = 0.5)
+        abline(tabres[i, 4], tabres[i, 5] * 1e-9, col = "black", lwd = 1) #return table results to correct scale
+        legend(x = 0, y = input$num, bty = "n", colnames(rdata)[i + 1], cex = 1.5, xjust = 0.5)
       } else {
         plot(Time, Yd, col = "red", pch = 20, xaxt = "n", yaxt = "n", xlim = c(0, max(Time)), ylim = c(0, input$num))
-        abline(TabRes()[i, 2], TabRes()[i, 3] * 1e-6, col = "black", lwd = 1) #return table results to correct scale
-        legend(x = 0, y = input$num, bty = "n", colnames(readData())[i + 1], cex = 1.5, xjust = 0.5)
+        abline(tabres[i, 2], tabres[i, 3] * 1e-6, col = "black", lwd = 1) #return table results to correct scale
+        legend(x = 0, y = input$num, bty = "n", colnames(rdata)[i + 1], cex = 1.5, xjust = 0.5)
       }
     }
   })
