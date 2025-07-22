@@ -110,12 +110,13 @@ function(input, output) {
 # Generate results table using slope and intercept functions for time and timesq
   TabRes <- reactive({
     if (is.null(readData())) { return(NULL)}
-    TabRes <- readData()[,-1] |> map_df(~data.frame(TInt=LMt(.x, input$num, readData())[1],
-                                                 TSlope=LMt(.x, input$num, readData())[2],
-                                                 TsqInt=LMtsq(.x, input$num, readData())[1],
-                                                 TsqSlope=LMtsq(.x,input$num, readData())[2])) |> 
-      add_column(Well=colnames(readData()[,-1]), .before = 1)
-    
+    rData <- readData()
+    TabRes <- rData[,-1] |> imap(~data.frame(Well = .y,  # .y gives you the column name
+                                                TInt=LMt(.x, input$num, rData)[1],
+                                                 TSlope=LMt(.x, input$num, rData)[2],
+                                                 TsqInt=LMtsq(.x, input$num, rData)[1],
+                                                 TsqSlope=LMtsq(.x,input$num, rData)[2])) |>
+                                                list_rbind()
   })
 
   # Make the TabRes into a matrix for presentation as a table in the UI
