@@ -1,7 +1,7 @@
 library(shiny)
 library(DT)
 
-Thisversion <- "version 0.81"
+Thisversion <- "version 0.81a"
 ThisApp <- "Analysis of Zymogen Activation"
 fluidPage(
 
@@ -124,7 +124,7 @@ fluidPage(
             tags$br(),
             "►Tick the box if you want to zero each curve at the first absorbance reading",
             tags$br(),
-            "►Select time squared to calculate the rate of zymogen activation in ⌂Abs/sec²",
+            "►Select time squared to calculate the rate of zymogen activation in ⌂abs/sec²",
             tags$br(),
             "►If time squared is not selected you can calculate simple rates of substrate hydrolysis over time",
             tags$br(),

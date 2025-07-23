@@ -158,7 +158,7 @@ function(input, output) {
     tabres <- TabRes() #|> mutate(across(2:5, \(x) signif(x, digits = 6)))
     # tabres <- formatC(TabRes(), format = "e", digits = 3)
     # Improve table headings
-    colnames(tabres) <- c("Wells", "T_Intercept", "T_Slope x1e6", "Tsq_Intercept", "Tsq_Slope x1e9")
+    colnames(tabres) <- c("Wells", "Intercept_t", "Slope_t x1e6", "Intercept_tsq", "Slope_tsq x1e9")
     tabres
   })
 
@@ -208,7 +208,7 @@ function(input, output) {
       plot(Timesq, Yd,
         col = "red", pch = 1, xlim = c(0, max(Timesq)), ylim = c(0, input$num),
         main = paste(
-          "Slope for time sq plot of", input$colmnames, "=", TabRes()[k, 5], "x 1e9 abs/s^2",
+          "Slope for time sq plot of", input$colmnames, "=", TabRes()[k, 5], "x 1e9 abs/s²",
           "over abs of ", input$num, "and", input$maxt, "points"
         )
       )
@@ -257,10 +257,10 @@ function(input, output) {
       if (input$pM) {
         txt <- paste("Rates of activation in pM/s for maximum absorbance ", input$num, "and", input$maxt, "data points")
       } else {
-        txt <- paste("Rates Abs/s² x 1e9 for maximum absorbance ", input$num, "and", input$maxt, "data points")
+        txt <- paste("Rates abs/s² x 1e9 for maximum absorbance ", input$num, "and", input$maxt, "data points")
       }
     } else {
-      txt <- paste("Rates Abs/s x 1e6 for maximum absorbance ", input$num, "and", input$maxt, "data points")
+      txt <- paste("Rates abs/s x 1e6 for maximum absorbance ", input$num, "and", input$maxt, "data points")
     }
   })
 }
