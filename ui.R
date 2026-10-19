@@ -1,7 +1,7 @@
 library(shiny)
 library(DT)
 
-Thisversion <- "version 0.81a"
+Thisversion <- "version 0.812"
 ThisApp <- "Analysis of Zymogen Activation"
 fluidPage(
 
